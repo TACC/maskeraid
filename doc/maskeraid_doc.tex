@@ -1,0 +1,351 @@
+\documentclass[10pt,a4paper]{report}
+\usepackage[pdftex]{graphicx}
+\usepackage{subfigure}            % Multiple figures per float
+\usepackage{placeins}             % Fix float loactions with \FloatBarrier
+\usepackage{color}                % Color definitions for boxes
+\usepackage{multirow}             % Multiple rows per cell in a table
+\usepackage{verbatim}             % Long verbatim sections
+\usepackage{titlesec}             % Easy modification the chapter format
+\usepackage{fancyhdr}             % Easy modification of header and footer
+\usepackage{hyperref}			  % Custom hyperlinks
+\usepackage{listings}			  % Code Listings
+\usepackage{courier}
+
+\renewcommand{\arraystretch}{1.2} % Extra space in tables
+\parindent0mm                     % New paragraphs start without indentation
+\setlength{\parskip}{1em}         % And with a blank line in between
+
+% Redefine chapters to remove the "Chapter" word
+\titleformat{\chapter}
+  {\normalfont\LARGE\bfseries}{\thechapter}{1em}{}
+\titlespacing*{\chapter}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+
+% Setup hyperlink format in document
+\hypersetup{
+    colorlinks=true, %set true if you want colored links
+    linkcolor=blue,  %choose some color if you want links to stand out
+    citecolor=blue,  %choose some color if you want lcitation to stand out
+    filecolor=black, % etc...
+    urlcolor=blue
+}
+
+% Define header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Kent Milfeld}
+\rhead{Maskeraid User Guide}
+\lfoot{Maskeraid}
+\rfoot{\thepage}
+
+% Define header and footer for first page in chapter
+\fancypagestyle{plain}{
+\fancyhf{}
+\lhead{Kent Milfeld}
+\rhead{Maskeraid User Guide}
+\lfoot{Maskeraid}
+\rfoot{\thepage}
+}
+
+% Gray boxes for optional material
+\definecolor{LightGrey}{gray}{.85}
+\setlength{\fboxrule}{1pt}
+\setlength{\fboxsep}{6pt}
+\newcommand{\IntroBox}[1]{
+  %\fcolorbox[rgb]{0,0,0}{0.95,0.95,0.95}{
+    \fcolorbox{black}{LightGrey}{
+    \begin{minipage}{0.94\linewidth}
+      %\textbf{Introduction}
+      #1
+    \end{minipage}
+  }
+}
+
+\lstset{language=C++,
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{blue}\ttfamily,
+    stringstyle=\color{red}\ttfamily,
+    commentstyle=\color{green}\ttfamily,
+    breaklines=true
+}
+
+\lstnewenvironment{code}[1][]%
+  {\noindent\minipage{\linewidth}\medskip 
+   \lstset{basicstyle=\ttfamily\footnotesize,frame=single,#1}}
+  {\endminipage}
+
+
+
+
+
+\begin{document}
+
+\begin{titlepage}
+\thispagestyle{empty}	%don't include number on cover
+%\begin{flushleft}
+%\begin{figure}
+%\includegraphics[width=0.2\textwidth]{gplv3-127x51.png}
+%\end{figure}
+%\end{flushleft}
+\verb+ +
+\vspace{1em}
+\begin{flushright}
+\huge\bf Maskeraid v1.2\\
+\rule{\textwidth}{4pt}
+\large{\bf Mask Aid for Affinity Binding (Scheduling)\\
+Document Revision 1.0\\
+\today}
+\end{flushright}
+
+%Back of cover page (copyright)
+\newpage
+\thispagestyle{empty}
+\begin{flushleft}
+Kent Milfeld \\
+\verb+milfeld@tacc.utexas.edu+\\
+\vspace{0.5em}
+High Performance Computing \\
+Texas Advanced Computing Center\\
+The University of Texas at Austin\\
+\vspace{1cm}
+Copyright 2016 The University of Texas at Austin.
+\end{flushleft}
+\newpage
+\end{titlepage}
+
+\begin{abstract}
+
+Maskeraid is a set of tools to help researchers discover the binding of their processes(MPI ranks)/threads(OpenMP threads) in a parallel environment. Maskeraid has the following components:
+
+\begin{itemize}
+\item Stand-alone executables to report default masks for execution of an OpenMP, MPI or Hybrid in an interactive or batch environment.
+\item API for instrumenting applications to report affinity masks from within the program.
+\item Utilities: timers, process/thread binder, routine to set core load.
+\end{itemize}
+
+
+Our intention is to create a tool that provides simple-to-understand affinity
+information. Bug reports and feedback on usability and improvements are welcome; send to milfeld@tacc.utexas.edu. 
+
+
+If you use maskeraid, cite:
+
+github.com/TACC/maskeraid, ``Maskeraid: An Aid for Reporting Affinity Masks'', Texas Advanced Computing Center (TACC), Kent F. Milfeld. \cite{maskeraid}
+
+\end{abstract}
+
+\tableofcontents
+
+\chapter{Installation}
+Maskeraid is easy to build. A make command will build stand-alone executables, and a library for those who want to instrument their code.
+
+Download the github repository \footnote{\href{https://github.com/TACC/maskeraid}{https://github.com/TACC/maskeraid}} by clicking on the ``Download ZIP'' file, and expand it in a convenient location.
+
+\begin{verbatim}
+    unzip  maskeraid-master.zip
+\end{verbatim}
+
+You can also clone the git repository:
+
+\begin{verbatim}
+    git clone https://github.com/TACC/maskeraid
+\end{verbatim}
+
+This will create a top level directory called \verb+maskeraid+, with subdirectories \verb+docs+ and \verb+src+. Change directory to the top level of maskeraid and execute make.
+
+%edit \verb+install.sh+ to reflect your choice for the installation directory. The variables to modify are:
+
+%\begin{table}[h]
+%\centering
+%\label{tab:env}
+%\begin{tabular}{|l|l|l|}
+%\hline
+%\bf{Variable}	& \bf{Description}                          & \bf{Default}\\\hline
+%MASKERAID\_DIR  & Absolute path to installation directory   & . \\\hline
+%\end{tabular}
+%\end{table}
+
+%Once these variables are set the tool can be installed by using:
+
+%\begin{verbatim}
+%    ./install.sh
+%\end{verbatim}
+
+The executables will be placed in the \verb+maskeraid/bin+ directory and the library will be placed in \verb+maskeraid/lib+.
+%unless the \verb+MASKERAID_DIR=...+ has been modified in the Makefile.
+
+\FloatBarrier
+\chapter{Affinity Mask from Stand-Alone Executable}
+
+
+The standalone executables \verb+omp_whereami+, \verb+mpi_whereami+, and \verb+hybrid_whereami+ are to
+be run in an OpenMP, MPI or hybrid environment, respectively, to obtain an output
+displaying the affinities for processes/threads in a batch or interactive environment.
+
+\begin{code}[frame=single,breaklines=true,numbers=left,language=C,caption=Executables for evaluating OpenMP MPI and Hybrid masks\label{whereami}]
+        export OMP_NUM_THREADS=4; omp_whereami
+ 
+        mpirun -n 8  mpi_whereami
+ 
+        export OMP_NUMPTHREAD=4; mpirun -n 8  hybrid_whereami
+\end{code}
+ 
+In batch mode run the whereami executable before your production code, or simply
+run the whereami executeable in lieu of the program executable by commenting
+it out as shown here:
+
+\begin{code}[frame=single,breaklines=true,numbers=left,language=C,caption=Invoking mask report inside code\label{whereamimpi}]
+        #!/bin/bash
+        #SLURM  -n 16 -N 1
+            ...
+        #Batch Script for TACC machine
+           ...
+        #ibrun ./my_mpi_exec
+         ibrun ./mpi_whereami 30
+\end{code}
+
+ The whereami puts a load on the ranks for 10 seconds (default), so that \verb+top+ can be run on
+ a node to observe the core occupation. You can change the load time (seconds)
+ with the \verb+nsec+ argument on the command line.  In the last command above the MPI processes are
+ loaded for 30 seconds.  (Execute \verb+top+, and then press the
+ 1 key without hitting the return key, to change the display to show the percentage
+ load on each core (or hardware thread when hyperthreading is on).
+
+%%You can reset the load time by setting setting the MASKERAID\_LOAD\_SECONDS environment
+%%variable to a positive integer (units are seconds).
+
+ How to read the output:
+ Output 1 is for a Stampede MPI run with 8 MPI processes.
+
+ The rows of the matrix are labeled by the ranks and the columns represent CPU\_ids
+ from 0 to ntasks-1, beginning with the first column of the matrix.
+ The CPU\_ids are grouped and labeled in units of 10s, and separated by a bar (|).
+
+ A HYPHEN at row, column position (x,y) means that rank x is not to execute on CPU\_id y.
+ A NON-HYPHEN character in the matrix means that
+ the MPI rank (row value) is allowed to execute in the CPU\_id (column value).
+ We use only a single  character to represent occupations, so that we can use
+ this tool with many-cores systems with over 50 cores and hundreds of hardware threads.
+
+What do the numbers in the matrix mean?
+To make it easy to determine the CPU\_id value in the matrix, the first digit of
+CPU\_id (core) number is printed in the matrix.  For CPU\_ids larger than 9, the
+"10s" position value can be read from the column header,the groups are separated
+by bars (|).  For instance the second set of values {0, 1, 2, 3, 4, 5} along the
+diagonal of the matrix represent CPU\_id's { 10, 11, 12, 13, 14, and 15}-- the "10"
+in the header "|       10     |" should be added to the unit digits within the matrix to get the
+CPU\_id value.
+
+
+\FloatBarrier
+\chapter{Using the Maskeraid Library}
+
+The basic operations used for reporting masking in the \verb+whereami+ programs
+were collected into a library, so that users
+could instrument there own applications to display the masks of MPI processes
+and OpenMP threads.
+
+ 
+
+\section{Get Masks Inside a Program}
+
+To report the masking from inside a program, include the maskeraid API routine, \verb+omp_report_mask()+,
+\verb+mpi_report_mask()+, or \verb+hybrid_report_mask()+, within an OpenMP parallel region, after MPI has been
+initialized, or within an OpenMP region of a hybrid program, respectively.  These functions don't
+require any arguments or include files:  
+
+\begin{itemize}
+\item omp\_report\_mask()
+\item mpi\_report\_mask()
+\item hybrid\_report\_mask()
+\end{itemize}
+
+
+
+However, to report masks for hybrid code, it may be necessary
+to initialized MPI with the \verb+MPI_Init_thread()+ routine. View the \verb+whereami+ codes to see how easy
+it is to include them in your own program. The snippets below show how they are to be used:
+
+
+
+%\begin{lstlisting}[frame=single,breaklines=true,numbers=left,language=C,caption=Invoking mask report inside code\label{code:apimask}]
+\begin{code}[frame=single,breaklines=true,numbers=left,language=C,caption=Invoking mask report inside code\label{code:apimask}]
+ // Pure OpenMP code
+    #pragma omp parallel
+    {
+       omp_report_mask();
+     ...
+    }
+
+ // Pure MPI code
+    MPI_Init(&argc, &argv);
+
+       mpi_report_mask();
+    ...
+    MPI_Finalize();
+
+ // Hybrid code
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE, &provided);
+
+    mpi_report_mask();  // helpful: reports ONLY MPI process masks
+
+   #pragma omp parallel private(thrd,nthrds,ierr)
+   {
+      hybrid_report_mask();
+      ...
+   }
+   ...
+   MPI_Finalize();
+\end{code}
+
+
+\section{Useful Utilities}
+\begin{itemize}
+\item load\_cpu\_nsec( nsec )   --- Puts load on process/thread for nsec seconds
+\item map\_to\_cpuid(cpu\_id)   --- Sets process/thread to execute on cpuid
+\item gtod\_timer()           --- Easy to use Get Time of Day clock
+\item tsc() --- Returns time stamp counter value
+\end{itemize}
+
+A thread or process that calls \verb+load_cpu_nsec(int nsec)+ will execute integer
+operations (a load) for nsec seconds.  nsec must be zero or a positive integer.  Use the
+\verb+cmdln_get_nsec_or_help(int * nsec, int argc, char * argv[])+ function to extract an
+integer from the command line for nsec (e.g. a.out 10).
+
+
+A thread or process that calls \verb+map_to_cpuid(int cpu_id)+ will assign the
+calling thread or process to execute on CPU\_id, by setting the appropriate
+bit in the scheduling mask.  For example, in a parallel region the unique
+thread\_id returned from \verb+omp_get_thread_num()+ can be used in an
+arithmetic operation (linear, modulo, etc.) to create a unique CPU\_id to be executed on. 
+
+The function \verb+gtod_timer()+ returns a double precision number with the number
+of wall-clock seconds since the previous call.  The first call sets the time
+to zero. The function uses the Unix \verb+gettimeofday+ utility, and  can be called from 
+C/C++ and Fortran.  See comments in the code for
+more details.
+
+The function \verb+tsc()+ returns an 8-byte integer (Unix) time stamp count from
+the \verb+rdtsc+ instruction. Use this to capture the difference between the counts for
+determining 
+the cost a of a small set of operations (instructions, code statements). This is
+not meant to be used as as a general timer, since the processor frequency may change.
+
+
+
+\section{Other things you should know}
+For MPI executables, compiled with IMPI (Intel MPI), 
+you can set I\_MPI\_DEBUG=4, and the execution will
+report the masking for list of CPU\_ids for each MPI process. 
+
+
+\FloatBarrier
+\addcontentsline{toc}{section}{\bf References}
+\begin{thebibliography}{00}
+
+
+\bibitem{maskeraid} maskeraid is a set of executables and routines for reporting affinity information. \href{https://github.com/tacc/maskeraid}{https://github.com/tacc/maskeraid}
+
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,14 @@
+
+1.) 
+   Clean up and simplify load.c
+
+2.)
+   Make Makefile determine automatically when to use defines
+   for different TACC systems.  
+   The load() function requires reasonal compiler optimization
+3.
+   Allow  X_whereami.c drivers to query environment variables
+   for nsec, etc.3.
+3.) 
+   Allow user to specify insertion of more mask header lines
+   through environment variables.
