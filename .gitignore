@@ -1,0 +1,6 @@
+bin/
+lib/
+src/*.o
+src/*.a
+src/*whereami
+
