@@ -58,7 +58,7 @@ int nsec = 10;            // Default time for load
 int cpuid;                // For mapping this process to cpuid in this variabl
 
 
-// cmdln_get_nsec_or_help( &nsec, argc, argv); //optional, get nsec from cmd line
+   cmdln_get_nsec_or_help( &nsec, argc, argv); //optional, get nsec from cmd line
 
 
    MPI_Init(&argc, &argv);

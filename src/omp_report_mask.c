@@ -53,7 +53,7 @@ char *  dummy;
      for(thrd=0;thrd<nthrds;thrd++)
          print_mask(0,   dummy,  0,  0,thrd,   ncpus, 1,nthrds, proc_mask[thrd]);
      if(nthrds>50)
-         print_mask(1,   dummy,  0,     0,0,   ncpus, 1,nthrds, proc_mask[thrd]);  //print header
+         print_mask(2,   dummy,  0,     0,0,   ncpus, 1,nthrds, proc_mask[thrd]);  //print header
    
 
      for(i=0;i<nthrds;i++) free( proc_mask[i]);

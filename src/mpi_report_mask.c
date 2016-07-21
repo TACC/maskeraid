@@ -103,7 +103,7 @@ int  * all_masks;
       for(id=0;id<nranks;id++)
          print_mask(0, &all_names[id*(max_name_len+1)], multi_node, id,0, ncpus, nranks,1, &all_masks[id*ncpus]);
       if(nranks>25)
-         print_mask(1,  all_names,               multi_node, id,0, ncpus, nranks,1,  all_masks);  //print header
+         print_mask(2,  all_names,               multi_node, id,0, ncpus, nranks,1,  all_masks);  //print header
    }
 
                                // Free space

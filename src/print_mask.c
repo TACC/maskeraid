@@ -46,6 +46,10 @@ char node_header[MAX_NAME];
 //                              HEADER (ranks and threads part)
 //                              First part of Header, rank/thrd title
 
+    
+    if(hd_prnt == 1)                 printf("\n      Each row of matrix is an Affinity "
+                                                    "mask. A set mask bit = matrix digit "
+                                                    "+ column # in |...|\n");
     if(multi_node)                   printf(" %20s",node_header); // Multi-node
 
     if(nranks == 1 &&  nthrds == 1 ) printf(" ");                 // serial

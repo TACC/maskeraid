@@ -41,15 +41,15 @@ EXES	= $(DRIVER_SOURCES:.c=)
 
 all: $(EXES)
 
-mpi_whereami    :                 mpi_whereami.o                       $(LIB)
+mpi_whereami    :            mpi_whereami.o                       $(LIB)
 	$(LD_MPI) $(LDFLAGS_MPI)  mpi_whereami.o    -o mpi_whereami    $(LIB)
 	mkdir -p ../bin
 	cp -p  mpi_whereami ../bin
-omp_whereami    :                 omp_whereami.o                       $(LIB)
+omp_whereami    :            omp_whereami.o                       $(LIB)
 	$(LD_OMP) $(LDFLAGS_OMP)  omp_whereami.o    -o omp_whereami    $(LIB)
 	mkdir -p ../bin
 	cp -p  omp_whereami ../bin
-hybrid_whereami :                 hybrid_whereami.o                    $(LIB)
+hybrid_whereami :            hybrid_whereami.o                    $(LIB)
 	$(LD_HYB) $(LDFLAGS_HYB)  hybrid_whereami.o -o hybrid_whereami $(LIB)
 	mkdir -p ../bin
 	cp -p  hybrid_whereami ../bin
@@ -91,13 +91,16 @@ timers.o  : timers.c
 	$(CC_SER) $(CFLAGS) -c $< -o $@
 
 
-.PHONY: install
+.PHONY: install clean cleanall
 install:
 	mkdir -p -v ../bin ../lib
 	cp -p $(LIB)  ../lib
 	cp -p $(EXES) ../bin
 
 clean :
+	rm -fr $(EXES) $(DRIVER_OBJECTS) $(LIB_OBJECTS) $(LIB) *.mod
+
+cleanall :
 	rm -fr $(EXES) $(DRIVER_OBJECTS) $(LIB_OBJECTS) $(LIB) *.mod
 	rm -fr $(addprefix ../bin/, $(EXES))  ../lib/$(LIB)
 	rmdir  ../bin/        ../lib/

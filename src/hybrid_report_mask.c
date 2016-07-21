@@ -151,7 +151,7 @@ static int   max_name_len;
        }
 
        if(nranks*nthrds > 50)
-          print_mask(1,  dummy,  multi_node,     0, 0,   ncpus, nranks,nthrds, omp_proc_mask[0]);  //print header 
+          print_mask(2,  dummy,  multi_node,     0, 0,   ncpus, nranks,nthrds, omp_proc_mask[0]);  //print header 
 
        fflush(stdout);
 
