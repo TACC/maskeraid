@@ -75,7 +75,7 @@ const char* senv = getenv("MASKERAID_LOAD_SECONDS");
        slen=strlen(senv);
        for(j=0;j<slen;j++) for(i=0;i<10;i++)
           if(senv[j] == digits[i] ){knt++;};
-       if(knt == slen){ sec = atoi(senv); }  //if all are ints
+       if(knt == slen){ sec = atoi((void *)senv); }  //if all are ints
 
        if(sec == 0 || knt != slen){
           printf("ERROR: ENV var MASKERAID_LOAD_SECONDS (%s) is invalid;"
