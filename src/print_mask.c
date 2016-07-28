@@ -30,6 +30,8 @@ char node_header[MAX_NAME];
 //    If nranks = 1, rank   number is not printed.
 //    If nthrds = 1, thread number is not printed.
 
+//    See FORTRAN INTERFACE at end
+
                           // If node names are different, then list them in output
   if(multi_node && hd_prnt){
 
@@ -97,3 +99,21 @@ char node_header[MAX_NAME];
   }
   fflush(stdout);
 }
+
+
+/*
+   program
+       use iso_c_binding, only: C_CHAR, C_NULL_CHAR
+       ...
+       interface
+         subroutine print_mask(          hd_prnt, name, multi_node, rank,thrd, ncpus,nranks,nthrds, icpus) bind(C,name="print_mask")
+         use iso_c_binding, only: c_char
+           integer,value, intent(in)  :: hd_prnt,       multi_node, rank,thrd, ncpus,nranks,nthrds
+           character(kind=c_char)     ::          name(*)
+           integer                    ::                                                            icpus(*)
+         end subroutine
+       end interface
+
+       call print_mask(hd_prnt ,name//C_NULL_CHAR, name, multi_node, rank,thrd, ncpus,nranks,nthrds, icpus)
+   end program
+*/

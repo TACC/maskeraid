@@ -13,3 +13,9 @@ int map_to_cpuid( int cpuid){
     CPU_SET(cpuid,  &mask);
     return( sched_setaffinity( (pid_t) 0 , sizeof(mask), &mask ) );
 }
+
+void  map_to_cpuid_(int *cpuid){
+int i;
+    i=map_to_cpuid(     *cpuid);
+    if( i!=0 ) exit(1);
+}

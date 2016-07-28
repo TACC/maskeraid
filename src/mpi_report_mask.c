@@ -113,3 +113,5 @@ int  * all_masks;
                          free( all_names);
 
 }
+
+void mpi_report_mask_(){ (void) mpi_report_mask(); }

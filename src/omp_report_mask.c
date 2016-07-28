@@ -61,3 +61,5 @@ char *  dummy;
    }
 
 }
+
+void omp_report_mask_(){ omp_report_mask(); }

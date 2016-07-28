@@ -62,3 +62,6 @@ int boundto(int* nelements_set, int* int_mask)
 
           return 0;
 }
+
+ int  boundto_(int *nelements_set, int *int_mask){ 
+(int) boundto(      nelements_set,      int_mask);}

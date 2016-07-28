@@ -44,7 +44,7 @@
 void print_mask(int hd_prnt, char* name, int multi_node, int rank, int thrd, int ncpus, int nranks, int nthrds, int *proc_mask);
 
 
-int hybrid_report_mask(void){
+int hybrid_report_mask(){
 
                         // General
 int i,j,ierr;
@@ -73,15 +73,24 @@ static int   max_name_len;
                                          // In MPI and parallel region ?
    MPI_Initialized(&in_mpi);
    in_omp = omp_in_parallel();
- 
-   if(in_mpi == 0 || in_omp == 0){
-     printf("ERROR: ***** Must call hybrid_report_mask() in an OpenMP parallel region in MPI program. ***** \n");
+   if(in_mpi == 0){
+     printf("ERROR: ***** Must call hybrid_report_mask() in MPI program. ***** \n");
      exit(1);
    }
- 
+
                                         // Get rank number & no of ranks via MPI
    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
    MPI_Comm_size(MPI_COMM_WORLD, &nranks);
+
+   if(in_omp == 0){
+     if(rank == 0){
+        printf("         ***** When using 1 thread, Intel OpenMP MAY report "
+                              "\"not in a parallel region\" (Uh!)***** \n");
+        printf("         ***** Each row will only have a rank number (no \"0\" thread_id). \n");
+        printf("WARNING: ***** Unspecified results if hybrid_report_mask "
+                              "not called in parallel region of MPI code section. ***** \n");
+     }
+   }
  
    thrd  =  omp_get_thread_num();        // thread id
    nthrds =  omp_get_num_threads();      // Number of Threads
@@ -182,3 +191,5 @@ static int   max_name_len;
    #pragma omp barrier            // JIC, what all threads leaving at the same time.
 
 }
+
+void hybrid_report_mask_(){ (void) hybrid_report_mask(); }
