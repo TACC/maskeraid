@@ -103,10 +103,10 @@ const char* senv = getenv("MASKERAID_LOAD_SECONDS");
 
       arch_factor = 0.1/(t1-t0);
       test_factor = (sec - test_cost)/sec;
-      printf("using arch_factor = %f  time=%f test_factor %f\n",arch_factor, test_cost, test_factor);
+//    printf("using arch_factor = %f  time=%f test_factor %f\n",arch_factor, test_cost, test_factor);
 // fix this later for KNL vvvv
       if( (t1-t0) > 0.1 ) {
-         printf("ERROR ***** 0.1G int ops should take less than 0.1 (took %f)\n",t1-t0);
+         printf("CANNOT set load time correctly ***** 0.1G int ops should take less than 0.1 (took %f)\n",t1-t0);
          exit(9);
       }
    }
