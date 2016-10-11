@@ -1,7 +1,7 @@
 /*
-  This needs to be simplified!
+  This routine load the system with integer work.
                                Kent Milfeld
-                               2016/07/13
+                               2016/10/11
 */
 double gtod_timer();
 #include <stdio.h>
@@ -17,7 +17,11 @@ int load_cpu_nsec_(int *sec){
 
 void load_cpu_nsec(int sec ){
 
-//
+// Load repeats the executon of an integer reduction (of 10M summations)
+// for "sec" seconds.  Initially 10 outer iteration are performed to
+// determine the amount of time for an outer iteration.  Then, for the
+// remaining time an appropriate number of iterations is determined
+// and executed.
 
 int i,j, isum;
 int iters, base_iters=10000000;

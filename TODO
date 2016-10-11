@@ -1,14 +1,16 @@
 
-1.) 
-   Clean up and simplify load.c
+1.)  Done  2016/10/11
+   Clean up and simplify load.c.
 
-2.)
+2.)  Done with -O3
    Make Makefile determine automatically when to use defines
-   for different TACC systems.  
+   for different TACC systems.   -- no longer needed
    The load() function requires reasonal compiler optimization
-3.
+
+3.  Done
    Allow  X_whereami.c drivers to query environment variables
    for nsec, etc.3.
-3.) 
+
+4.) 
    Allow user to specify insertion of more mask header lines
    through environment variables.
