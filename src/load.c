@@ -56,7 +56,7 @@ const char* senv = getenv("MASKERAID_LOAD_SECONDS");
 
                                             // this is just a warm up
       t0=gtod_timer();
-         isum= myspin(1);                   // Make sure the instruction are in cache
+         isum= myspin(5);                   // Make sure the instruction are in cache
          if(isum==0) printf("%d\n",isum);   // (if on isum) don't optimize  away myspin
       t1=gtod_timer();
       startup_cost = t1-t0;
@@ -90,7 +90,7 @@ const char* senv = getenv("MASKERAID_LOAD_SECONDS");
       if(isum==0) printf("%d\n",isum);   // (if on isum) don't optimize  away myspin
    }
    t1=gtod_timer();
-   printf("TOTAL %f\n", startup_cost+test_cost+t1-t0);
+// printf("TOTAL %f\n", startup_cost+test_cost+t1-t0);
 
 }
 
