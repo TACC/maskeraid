@@ -16,12 +16,12 @@
 
 int get_threads_per_node();   
 
-void print_mask(int hd_prnt, char *name, int multi_node, int rank, int thrd, int ncpus, int nranks, int nthrds, int *icpus){ 
+void print_mask(int hd_prnt, char *name, int multi_node, int rank, int thrd, int ncpus, int nranks, int nthrds, int *icpus, int tpc, char l){ 
 
 int i, lsdigit, n10, n100;
 char node_header[MAX_NAME];
 
-int tpc, cores, cnt, wrap_cont = 0;
+int cores, cnt, wrap_cont = 0;
 char no_occ;
 int ii, force_long = 0;   // pass this in later
 
@@ -42,8 +42,13 @@ int ii, force_long = 0;   // pass this in later
 
 //    See FORTRAN INTERFACE at end
 
-      tpc=get_threads_per_node();
+  if( l != 's') {
       cores=ncpus/tpc;
+  }
+  else{
+      tpc=1;
+      cores=ncpus;  // effectively make hw_threads/core = 1
+  }
 
                           // If node names are different, then list them in output
   if(multi_node && hd_prnt){
@@ -103,6 +108,7 @@ int ii, force_long = 0;   // pass this in later
 //                      Mask index == head group + least significant digit (sdigit)
 
     no_occ = ( tpc > 1 && ! force_long )? '=' : '-';
+    if( l == 's') no_occ = '-';
     for(i=0;i<ncpus;i++){ 
      ii = i%cores;
 

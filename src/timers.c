@@ -35,16 +35,19 @@
 */
 #include <stdlib.h>
 #include <sys/time.h>
+#include <cstdlib>
+#include <sys/time.h>
 
 double gtod_secbase = 0.0E0;
 
 double gtod_timer()
 {
    struct timeval tv;
-   void *Tzp=0;
+ //void *Tzp=0;
+ //struct timezone *Tzp;
    double sec;
 
-   gettimeofday(&tv, Tzp);
+   gettimeofday(&tv, NULL);
 
                /*Always remove the LARGE sec value
                  for improved accuracy  */
@@ -57,10 +60,12 @@ double gtod_timer()
 double gtod_timer_()
 {
    struct timeval tv;
-   void *Tzp=0;
+// void *Tzp=0;
+// struct timezone *Tzp;
    double sec;
 
-   gettimeofday(&tv, Tzp);
+ //gettimeofday(&tv, Tzp);
+   gettimeofday(&tv, NULL);
 
                /*Always remove the LARGE sec value
                  for improved accuracy  */

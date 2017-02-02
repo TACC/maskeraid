@@ -25,6 +25,7 @@
 */
 #include <stdio.h>
 #include <omp.h>
+#include "opts.h"
 
 void load_cpu_nsec(int nsec);
 void omp_report_mask();
@@ -39,7 +40,8 @@ int nsec = 10;     // Load, default time
 
 int ierr;          // Error number
 
-   cmdln_get_nsec_or_help( &nsec, argc, argv); //optional, get nsec from cmd line
+// cmdln_get_nsec_or_help( &nsec, argc, argv); //optional, get nsec from cmd line
+   Maskopts opts(argc,argv);
 
    #pragma omp parallel private(thrd,ierr)
    {

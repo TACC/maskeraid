@@ -6,6 +6,7 @@
 
 #include <sched.h>
 #include <unistd.h>
+#include <cstdlib>
 
 int map_to_cpuid( int cpuid){
     cpu_set_t        mask;

@@ -3,4 +3,11 @@ lib/
 src/*.o
 src/*.a
 src/*whereami
+*.bak
+junk
+backup
+src/junk
+src/backup
+src/test
+*.[0-9]
 

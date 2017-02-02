@@ -35,11 +35,13 @@
 #include <mpi.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "opts.h"
 
 
 void load_cpu_nsec(int nsec);
 void hybrid_report_mask(void);
 int  map_to_cpuid( int icore);
+void mpi_report_mask(void); 
 
 
 int main(int argc, char **argv){
@@ -51,7 +53,8 @@ int nsec = 10;     // Load, default time
 
 int ierr;          // Error number
 
-   cmdln_get_nsec_or_help( &nsec, argc, argv); //optional, get nsec from cmd line
+// cmdln_get_nsec_or_help( &nsec, argc, argv); //optional, get nsec from cmd line
+   Maskopts opts(argc,argv);
 
                   // thread safe init replaces MPI_Init(&argc, &argv);
    MPI_Init_thread(&argc, &argv, requested, &provided);  

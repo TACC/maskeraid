@@ -38,7 +38,7 @@
 
 #include <stdio.h>
 #include <mpi.h>
-
+#include "opts.h"
                                   // basic routes
 void cmdln_get_nsec_or_help(int * nsec, int argc, char * argv[]);
 void          load_cpu_nsec(int nsec );
@@ -47,7 +47,7 @@ void        mpi_report_mask();
 int           map_to_cpuid(int cpuid);          // set your own affinity here 
 
 
-int main(int argc, char * argv[]){
+int main(int argc, char **argv){
 
 int i,j;                  // General
 
@@ -57,8 +57,13 @@ int nsec = 10;            // Default time for load
 
 int cpuid;                // For mapping this process to cpuid in this variabl
 
+int  p;                   // Options
+char l;
 
-   cmdln_get_nsec_or_help( &nsec, argc, argv); //optional, get nsec from cmd line
+   Maskopts opts(argc,argv);
+
+
+// cmdln_get_nsec_or_help( &nsec, argc, argv); //optional, get nsec from cmd line
 
 
    MPI_Init(&argc, &argv);
@@ -72,6 +77,7 @@ int cpuid;                // For mapping this process to cpuid in this variabl
    mpi_report_mask();                 // Call mask reporter
 
    load_cpu_nsec( nsec );             // Load up rank process so user can watch top.
+
 
    MPI_Finalize();
 

@@ -1,10 +1,10 @@
-CC_SER  =   icc
-CC_MPI  = mpicc
-CC_OMP  =   icc -qopenmp
-CC_HYB  = mpicc -qopenmp
-LD_MPI  = mpicc
-LD_OMP  =   icc -qopenmp
-LD_HYB  = mpicc -qopenmp
+CC_SER  =   icpc -g
+CC_MPI  = mpicxx -g
+CC_OMP  =   icpc -qopenmp -g
+CC_HYB  = mpicxx -qopenmp -g
+LD_MPI  = mpicxx -g
+LD_OMP  =   icpc -qopenmp -g
+LD_HYB  = mpicxx -qopenmp -g
 
 AR      = ar
 
@@ -21,6 +21,8 @@ ifeq ($(TACC_SYSTEM),ls5)
    LOAD_DEF=-DLS5
 endif
 
+#rm -fr $(EXES) $(DRIVER_OBJECTS) $(LIB_OBJECTS) $(LIB) *.mod
+
 #                               new load code auto adjusts for units of seconds.
 #CFLAGS	= -D _GNU_SOURCE -D LS5 no longer required
 #CFLAGS	= -D _GNU_SOURCE -D SP1 no longer required
@@ -31,8 +33,10 @@ LDFLAGS	=
 DRIVER_SOURCES = mpi_whereami.c omp_whereami.c hybrid_whereami.c 
 DRIVER_OBJECTS = $(DRIVER_SOURCES:.c=.o)
 
-LIB_SOURCES=boundto.c cmdln_args.c load.c map_to_cpuid.c print_mask.c timers.c mpi_report_mask.c omp_report_mask.c hybrid_report_mask.c
-LIB_OBJECTS = $(LIB_SOURCES:.c=.o)
+#LIB_SOURCES=boundto.c cmdln_args.c load.c map_to_cpuid.c print_mask.c timers.c mpi_report_mask.c omp_report_mask.c hybrid_report_mask.c opts.cpp
+ LIB_SOURCES=boundto.c              load.c map_to_cpuid.c print_mask.c timers.c mpi_report_mask.c omp_report_mask.c hybrid_report_mask.c opts.cpp
+#LIB_OBJECTS = $(LIB_SOURCES:.c=.o)
+ LIB_OBJECTS =boundto.o             load.o map_to_cpuid.o print_mask.o timers.o mpi_report_mask.o omp_report_mask.o hybrid_report_mask.o opts.o
 
 
 LIB     = maskeraid.a
@@ -77,7 +81,7 @@ hybrid_report_mask.o :  hybrid_report_mask.c
 
 
 load.o  : load.c
-	$(CC_SER) $(LOAD_X) -O3 $(LOAD_DEF)  -c $< -o $@
+	$(CC_SER) $(LOAD_X) -DCMASK_LOAD -O3 $(LOAD_DEF)  -c $< -o $@
 
 boundto.o  : boundto.c
 	$(CC_SER)  -D _GNU_SOURCE -c $< -o $@
@@ -85,6 +89,8 @@ map_to_cpuid.o  : map_to_cpuid.c
 	$(CC_SER)  -D _GNU_SOURCE -c $< -o $@
 timers.o  : timers.c
 	$(CC_SER)  -D _GNU_SOURCE -c $< -o $@
+opts.o  : opts.cpp
+	$(CC_SER)                 -c $< -o $@
 
 
 %.o : %.c
@@ -98,6 +104,10 @@ install:
 	cp -p $(EXES) ../bin
 
 clean :
+	echo EXES: $(EXES) 
+	echo DRIVER_OBJECTS: $(DRIVER_OBJECTS) 
+	echo LIB_OBJECTS: $(LIB_OBJECTS) 
+	echo LIB: $(LIB) *.mod
 	rm -fr $(EXES) $(DRIVER_OBJECTS) $(LIB_OBJECTS) $(LIB) *.mod
 
 cleanall :

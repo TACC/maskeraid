@@ -39,9 +39,13 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include  <ctype.h>
+#include  <cstdlib>
+#include "opts.h"
 
                                 // basic mask printer-- prints a single row with ncpus number of elements
-void print_mask(int hd_prnt, char* name, int multi_node, int rank, int thrd, int ncpus, int nranks, int nthrds, int *proc_mask);
+void print_mask(int hd_prnt, char* name, int multi_node, int rank, int thrd, int ncpus, int nranks, int nthrds, int *proc_mask, int tpc, char l);
+int boundto(int* nelements_set, int* int_mask);
+int get_threads_per_node();
 
 
 int hybrid_report_mask(){
@@ -69,7 +73,15 @@ static int   max_name_len;
      int   name_len;
      char  proc_name[MPI_MAX_PROCESSOR_NAME];
 
- 
+char l,p;
+int  tpc;   // hwthreads/core
+
+   Maskopts opts;
+                          // get print_speed fast or slow (f|c);   listing cores or SMT (c|s)
+   p = opts.get_p();
+   l = opts.get_l();
+
+   tpc=get_threads_per_node();
                                          // In MPI and parallel region ?
    MPI_Initialized(&in_mpi);
    in_omp = omp_in_parallel();
@@ -105,7 +117,7 @@ static int   max_name_len;
                                   // Get a list of nodes from all ranks.
      MPI_Get_processor_name(proc_name,&name_len);
      MPI_Allreduce(&name_len, &max_name_len, 1,MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-     all_names = malloc(sizeof(int*)*nranks*(max_name_len+1));
+     all_names = (char *) malloc(sizeof(int*)*nranks*(max_name_len+1));
      MPI_Gather( proc_name, max_name_len+1 , MPI_CHAR,
                  all_names, max_name_len+1, MPI_CHAR,
                  0, MPI_COMM_WORLD);
@@ -119,8 +131,8 @@ static int   max_name_len;
    
                                   // Create shared storage for masks (only master allocates)
  
-     omp_proc_mask =                           malloc(sizeof(int*)*nthrds);
-     for(i=0;i<nthrds;i++) omp_proc_mask[i] =  malloc(sizeof(int )*ncpus  );
+     omp_proc_mask =                          (int **) malloc(sizeof(int*)*nthrds);
+     for(i=0;i<nthrds;i++) omp_proc_mask[i] = (int * ) malloc(sizeof(int )*ncpus  );
      for(i=0;i<nthrds;i++) for(j=0;j<ncpus;j++) omp_proc_mask[i][j] =0;
  
    }
@@ -139,11 +151,11 @@ static int   max_name_len;
        request = (MPI_Request *) malloc(sizeof(MPI_Request)*nranks);
        status  = (MPI_Status  *) malloc(sizeof(MPI_Status )*nranks);
 
-       print_mask(1,  dummy,  multi_node,     0, 0,   ncpus, nranks,nthrds, omp_proc_mask[0]);  //print header 
+       print_mask(1,  dummy,  multi_node,     0, 0,   ncpus, nranks,nthrds, omp_proc_mask[0],tpc,l);  //print header 
        fflush(stdout);
 
        for(tid=0;tid<nthrds;tid++){
-          print_mask(0,  &all_names[tid*(max_name_len+1)], multi_node,  0,tid,   ncpus, nranks,nthrds, omp_proc_mask[tid]);
+          print_mask(0,  &all_names[tid*(max_name_len+1)], multi_node,  0,tid,   ncpus, nranks,nthrds, omp_proc_mask[tid],tpc,l);
        }
        fflush(stdout);
          
@@ -155,12 +167,13 @@ static int   max_name_len;
 
        for(rid=1;rid<nranks;rid++){ // Print for each rank
             for(tid=0;tid<nthrds;tid++){
-               print_mask(0,  &all_names[tid*(max_name_len+1)], multi_node,  rid,tid,   ncpus, nranks,nthrds, &omp_mask_pac[rid*nthrds*ncpus + tid*ncpus]);
+               print_mask(0,  &all_names[tid*(max_name_len+1)], multi_node,  rid,tid,   ncpus, nranks,nthrds, &omp_mask_pac[rid*nthrds*ncpus + tid*ncpus],tpc,l);
+               if(p == 's') ierr=usleep(300000);
             }
        }
 
        if(nranks*nthrds > 50)
-          print_mask(2,  dummy,  multi_node,     0, 0,   ncpus, nranks,nthrds, omp_proc_mask[0]);  //print header 
+          print_mask(2,  dummy,  multi_node,     0, 0,   ncpus, nranks,nthrds, omp_proc_mask[0],tpc,l);  //print header 
 
        fflush(stdout);
 
@@ -171,6 +184,7 @@ static int   max_name_len;
                                        // Pack up the ranks' mask arrays (Uh, should have made one array from beginning!) 
           for(   tid=0;tid<nthrds;tid++){
              for( id=0; id<ncpus;  id++)  omp_mask_pac[(tid*ncpus)+id] = omp_proc_mask[tid][id];
+             if(p == 's') ierr=usleep(300000);
           }
                                        // Send to root
           MPI_Send(omp_mask_pac, nthrds*ncpus, MPI_INT, 0, 99, MPI_COMM_WORLD);

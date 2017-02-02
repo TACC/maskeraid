@@ -30,8 +30,12 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#include "opts.h"
+
                                   // basic routes
-void print_mask(int hd_prnt, char* name, int multi_node, int rank, int thrd, int ncpus, int nranks, int nthrds, int *proc_mask);
+void print_mask(int hd_prnt, char* name, int multi_node, int rank, int thrd, int ncpus, int nranks, int nthrds, int *proc_mask, int tpc, char l);
+int boundto(int* nelements_set, int* int_mask);
+int get_threads_per_node();
 
 
 int mpi_report_mask(){
@@ -52,6 +56,17 @@ int id, nel_set;
 int ** proc_mask;
 int  * all_masks;
 
+                          // Options
+char l,p;
+int  tpc;      //hwthreads/core
+
+   Maskopts opts;
+                          // get print_speed fast or slow (f|c);   listing cores or SMT (c|s)
+   p = opts.get_p();
+   l = opts.get_l();
+
+   tpc=get_threads_per_node();
+
                    // Get number of cpus (this gives no. of cpu_ids in /proc/cpuinfo)
                    // Get rank number & no of ranks via MPI
    ncpus = (int) sysconf(_SC_NPROCESSORS_ONLN);
@@ -66,8 +81,10 @@ int  * all_masks;
                    // I could have made proc_mask a single array (proc_mask[ncpus]); but didn't
                    // This is a hold-over from the openmp version that holds everything for all threads.
                    // For MPI I made a continguous collection array (all_masks).
-   proc_mask =          malloc(sizeof(int*)*nranks);
-   for(i=0;i<nranks;i++) proc_mask[i] =  malloc(sizeof(int)*ncpus);
+// proc_mask =            malloc(sizeof(int*)*nranks);
+   proc_mask =  (int **)  malloc(sizeof(int*)*nranks);
+// for(i=0;i<nranks;i++) proc_mask[i] =         malloc(sizeof(int)*ncpus);
+   for(i=0;i<nranks;i++) proc_mask[i] =(int *)  malloc(sizeof(int)*ncpus);
    for(i=0;i<nranks;i++) for(j=0;j<ncpus;j++) proc_mask[i][j] =0;
    all_masks =  (int *) malloc(sizeof(int)*nranks*ncpus);
 
@@ -83,7 +100,7 @@ int  * all_masks;
                                 // Get a list of nodes from all ranks.
    MPI_Get_processor_name(proc_name,&name_len);
    MPI_Allreduce(&name_len, &max_name_len, 1,MPI_INT, MPI_MAX, MPI_COMM_WORLD);
-   all_names = malloc(sizeof(int*)*nranks*(max_name_len+1));
+   all_names = (char *) malloc(sizeof(int*)*nranks*(max_name_len+1));
    MPI_Gather( proc_name, max_name_len+1 , MPI_CHAR,
                all_names, max_name_len+1,  MPI_CHAR,
                0, MPI_COMM_WORLD);
@@ -99,11 +116,13 @@ int  * all_masks;
 
                                 // Master prints information
    if(rank == 0){
-         print_mask(1,  all_names,               multi_node, id,0, ncpus, nranks,1,  all_masks);  //print header
-      for(id=0;id<nranks;id++)
-         print_mask(0, &all_names[id*(max_name_len+1)], multi_node, id,0, ncpus, nranks,1, &all_masks[id*ncpus]);
+         print_mask(1,  all_names,               multi_node, id,0, ncpus, nranks,1,  all_masks,tpc,l);  //print header
+      for(id=0;id<nranks;id++){
+         print_mask(0, &all_names[id*(max_name_len+1)], multi_node, id,0, ncpus, nranks,1, &all_masks[id*ncpus],tpc,l);
+         if(p == 's') ierr=usleep(1000000);
+      }
       if(nranks>25)
-         print_mask(2,  all_names,               multi_node, id,0, ncpus, nranks,1,  all_masks);  //print header
+         print_mask(2,  all_names,               multi_node, id,0, ncpus, nranks,1,  all_masks,tpc,l);  //print header
    }
 
                                // Free space

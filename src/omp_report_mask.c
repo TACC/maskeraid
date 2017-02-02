@@ -17,6 +17,11 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include "opts.h"
+
+void print_mask(int hd_prnt, char* name, int multi_node, int rank, int thrd, int ncpus, int nranks, int nthrds, int *proc_mask, int tpc, char l);
+int boundto(int* nelements_set, int* int_mask);
+int get_threads_per_node();
 
 void omp_report_mask(){
 
@@ -26,6 +31,17 @@ int ncpus, nel_set;
 static int ** proc_mask;
 int i,j, ierr;
 char *  dummy;
+
+char l,p;
+int  tpc;   // hwthreads/core
+
+   Maskopts opts;
+                          // get print_speed fast or slow (f|c);   listing cores or SMT (c|s)
+   p = opts.get_p();
+   l = opts.get_l();
+
+
+   tpc=get_threads_per_node();
 
    thrd   =  omp_get_thread_num();
    nthrds =  omp_get_num_threads();
@@ -39,8 +55,8 @@ char *  dummy;
 
    #pragma omp single
    {
-     proc_mask =                           malloc(sizeof(int*)*nthrds);
-     for(i=0;i<nthrds;i++) proc_mask[i] =  malloc(sizeof(int)*ncpus  );
+     proc_mask =                          (int **) malloc(sizeof(int*)*nthrds);
+     for(i=0;i<nthrds;i++) proc_mask[i] = (int * ) malloc(sizeof(int)*ncpus  );
      for(i=0;i<nthrds;i++) for(j=0;j<ncpus;j++) proc_mask[i][j] =0;
    }
 
@@ -49,11 +65,13 @@ char *  dummy;
 
    #pragma omp single
    {
-         print_mask(1,   dummy,  0,     0,0,   ncpus, 1,nthrds, proc_mask[thrd]);  //print header
-     for(thrd=0;thrd<nthrds;thrd++)
-         print_mask(0,   dummy,  0,  0,thrd,   ncpus, 1,nthrds, proc_mask[thrd]);
+         print_mask(1,   dummy,  0,     0,0,   ncpus, 1,nthrds, proc_mask[thrd],tpc,l);  //print header
+     for(thrd=0;thrd<nthrds;thrd++){
+         print_mask(0,   dummy,  0,  0,thrd,   ncpus, 1,nthrds, proc_mask[thrd],tpc,l);
+         if(p == 's') ierr=usleep(300000);
+     }
      if(nthrds>50)
-         print_mask(2,   dummy,  0,     0,0,   ncpus, 1,nthrds, proc_mask[thrd]);  //print header
+         print_mask(2,   dummy,  0,     0,0,   ncpus, 1,nthrds, proc_mask[thrd],tpc,l);  //print header
    
 
      for(i=0;i<nthrds;i++) free( proc_mask[i]);
